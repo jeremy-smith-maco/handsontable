@@ -146,8 +146,9 @@ class Search extends BasePlugin {
         const cellData = this.hot.getDataAtCell(rowIndex, colIndex);
         const cellProperties = this.hot.getCellMeta(rowIndex, colIndex);
         const cellCallback = cellProperties.search.callback || callback;
+        // https://github.com/handsontable/handsontable/issues/4944
         const cellQueryMethod = cellProperties.search.queryMethod || queryMethod;
-        const testResult = cellQueryMethod(queryStr, cellData);
+        const testResult = cellQueryMethod(queryStr, cellData, colIndex);
 
         if (testResult) {
           const singleResult = {

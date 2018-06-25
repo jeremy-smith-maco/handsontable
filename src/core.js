@@ -1413,10 +1413,11 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
    * @memberof Core#
    * @function loadData
    * @param {Array} data Array of arrays or array of objects containing data.
+   * @param {Boolean} deferRender Defers the render until a later point in time. If set to true must call render() yourself.
    * @fires Hooks#afterLoadData
    * @fires Hooks#afterChange
    */
-  this.loadData = function(data) {
+  this.loadData = function(data, deferRender = false) {
     if (Array.isArray(priv.settings.dataSchema)) {
       instance.dataType = 'array';
     } else if (isFunction(priv.settings.dataSchema)) {
@@ -1489,7 +1490,9 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
       priv.firstRun = [null, 'loadData'];
     } else {
       instance.runHooks('afterChange', null, 'loadData');
-      instance.render();
+      if (!deferRender) {
+        instance.render();
+      }
     }
     priv.isPopulated = true;
 
