@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.0.1
- * Release date: 02/10/2018 (built at 02/10/2018 11:27:26)
+ * Release date: 02/10/2018 (built at 03/10/2018 14:41:04)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -11081,12 +11081,13 @@ function Core(rootElement, userSettings) {
     var isNumericData = function isNumericData(value) {
       return value.length > 0 && /^-?[\d\s]*(\.|,)?\d*$/.test(value);
     };
+    var toSplice = [];
 
     waitingForValidator.onQueueEmpty = resolve;
 
-    for (var i = changes.length - 1; i >= 0; i--) {
+    for (var i = 0; i < changes.length; i++) {
       if (changes[i] === null) {
-        changes.splice(i, 1);
+        toSplice.push(i);
       } else {
         var _changes$i = _slicedToArray(changes[i], 4),
             row = _changes$i[0],
@@ -11109,7 +11110,7 @@ function Core(rootElement, userSettings) {
                 throw new Error('Validation error: result is not boolean');
               }
               if (result === false && cellPropertiesReference.allowInvalid === false) {
-                changes.splice(index, 1); // cancel the change
+                toSplice.push(index); // cancel the change
                 cellPropertiesReference.valid = true; // we cancelled the change, so cell value is still valid
                 var cell = instance.getCell(cellPropertiesReference.visualRow, cellPropertiesReference.visualCol);
                 (0, _element.removeClass)(cell, instance.getSettings().invalidCellClassName);
@@ -11120,6 +11121,10 @@ function Core(rootElement, userSettings) {
           }(i, cellProperties), source);
         }
       }
+    }
+    for (var _i = toSplice.length - 1; _i >= 0; _i--) {
+      var index = toSplice[_i];
+      changes.splice(index, 1);
     }
     waitingForValidator.checkIfQueueIsEmpty();
 
@@ -11634,10 +11639,13 @@ function Core(rootElement, userSettings) {
    * @memberof Core#
    * @function loadData
    * @param {Array} data Array of arrays or array of objects containing data.
+   * @param {Boolean} deferRender Defers the render until a later point in time. If set to true must call render() yourself.
    * @fires Hooks#afterLoadData
    * @fires Hooks#afterChange
    */
   this.loadData = function (data) {
+    var deferRender = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
     if (Array.isArray(priv.settings.dataSchema)) {
       instance.dataType = 'array';
     } else if ((0, _function.isFunction)(priv.settings.dataSchema)) {
@@ -11709,7 +11717,9 @@ function Core(rootElement, userSettings) {
       priv.firstRun = [null, 'loadData'];
     } else {
       instance.runHooks('afterChange', null, 'loadData');
-      instance.render();
+      if (!deferRender) {
+        instance.render();
+      }
     }
     priv.isPopulated = true;
 
@@ -29759,7 +29769,7 @@ Handsontable.DefaultSettings = _defaultSettings2.default;
 Handsontable.EventManager = _eventManager2.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = '02/10/2018 11:27:26';
+Handsontable.buildDate = '03/10/2018 14:41:04';
 Handsontable.packageName = 'handsontable';
 Handsontable.version = '6.0.1';
 
@@ -56974,6 +56984,10 @@ var jsonpatch;
             generate(observer);
             clearTimeout(observer.next);
             removeObserverFromMirror(mirror, observer);
+            // https://github.com/handsontable/handsontable/pull/4710
+            if (mirror.observers.length === 0) {
+                beforeDict.splice(beforeDict.indexOf(mirror), 1);
+            }
             if (typeof window !== 'undefined') {
                 if (window.removeEventListener) {
                     window.removeEventListener('mousedown', fastCheck);
@@ -57561,8 +57575,9 @@ var Search = function (_BasePlugin) {
           var cellData = _this4.hot.getDataAtCell(rowIndex, colIndex);
           var cellProperties = _this4.hot.getCellMeta(rowIndex, colIndex);
           var cellCallback = cellProperties.search.callback || callback;
+          // https://github.com/handsontable/handsontable/issues/4944
           var cellQueryMethod = cellProperties.search.queryMethod || queryMethod;
-          var testResult = cellQueryMethod(queryStr, cellData);
+          var testResult = cellQueryMethod(queryStr, cellData, colIndex);
 
           if (testResult) {
             var singleResult = {
