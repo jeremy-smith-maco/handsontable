@@ -894,12 +894,13 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
   function validateChanges(changes, source, callback) {
     const waitingForValidator = new ValidatorsQueue();
     const isNumericData = value => value.length > 0 && /^-?[\d\s]*(\.|,)?\d*$/.test(value);
+    const toSplice = [];
 
     waitingForValidator.onQueueEmpty = resolve;
 
-    for (let i = changes.length - 1; i >= 0; i--) {
+    for (let i = 0; i < changes.length; i++) {
       if (changes[i] === null) {
-        changes.splice(i, 1);
+        toSplice.push(i);
       } else {
         const [row, prop, , newValue] = changes[i];
         const col = datamap.propToCol(prop);
@@ -918,7 +919,7 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
                 throw new Error('Validation error: result is not boolean');
               }
               if (result === false && cellPropertiesReference.allowInvalid === false) {
-                changes.splice(index, 1); // cancel the change
+                toSplice.push(index); // cancel the change
                 cellPropertiesReference.valid = true; // we cancelled the change, so cell value is still valid
                 const cell = instance.getCell(cellPropertiesReference.visualRow, cellPropertiesReference.visualCol);
                 removeClass(cell, instance.getSettings().invalidCellClassName);
@@ -929,6 +930,10 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
           }(i, cellProperties)), source);
         }
       }
+    }
+    for (let i = toSplice.length - 1; i >= 0; i--) {
+      const index = toSplice[i];
+      changes.splice(index, 1);
     }
     waitingForValidator.checkIfQueueIsEmpty();
 
