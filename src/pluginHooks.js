@@ -612,6 +612,7 @@ const REGISTERED_HOOKS = [
    * @param {Array[]} data 2D array containing information about fill pattern: `[["1", "Ted"], ["1", "John"]]`.
    */
   'beforeAutofill',
+  'afterAutofill',
 
   /**
    * Fired before aligning the cell contents.
