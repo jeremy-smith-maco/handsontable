@@ -8,6 +8,7 @@ import { getDeltas, getDragDirectionAndRange, DIRECTIONS, getMappedFillHandleSet
 
 Hooks.getSingleton().register('modifyAutofillRange');
 Hooks.getSingleton().register('beforeAutofill');
+Hooks.getSingleton().register('afterAutofill');
 
 const INSERT_ROW_ALTER_ACTION_NAME = 'insert_row';
 const INTERVAL_FOR_ADDING_ROW = 200;
@@ -207,6 +208,7 @@ class Autofill extends BasePlugin {
       );
 
       this.setSelection(cornersOfSelectionAndDragAreas);
+      this.hot.runHooks('afterAutofill', startOfDragCoords, endOfDragCoords, selectionData);
 
     } else {
       // reset to avoid some range bug
