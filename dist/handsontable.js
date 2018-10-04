@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.0.1
- * Release date: 02/10/2018 (built at 04/10/2018 15:08:48)
+ * Release date: 02/10/2018 (built at 04/10/2018 15:14:44)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4008,7 +4008,7 @@ var REGISTERED_HOOKS = [
  * @param {CellCoords} end Object containing information about last filled cell: `{row: 4, col: 1}`.
  * @param {Array[]} data 2D array containing information about fill pattern: `[["1", "Ted"], ["1", "John"]]`.
  */
-'beforeAutofill',
+'beforeAutofill', 'afterAutofill',
 
 /**
  * Fired before aligning the cell contents.
@@ -29778,7 +29778,7 @@ Handsontable.DefaultSettings = _defaultSettings2.default;
 Handsontable.EventManager = _eventManager2.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = '04/10/2018 15:08:48';
+Handsontable.buildDate = '04/10/2018 15:14:44';
 Handsontable.packageName = 'handsontable';
 Handsontable.version = '6.0.1';
 
