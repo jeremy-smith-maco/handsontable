@@ -931,15 +931,15 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
         }
       }
     }
-    for (let i = toSplice.length - 1; i >= 0; i--) {
-      const index = toSplice[i];
-      changes.splice(index, 1);
-    }
     waitingForValidator.checkIfQueueIsEmpty();
 
     function resolve() {
       let beforeChangeResult;
 
+      for (let i = toSplice.length - 1; i >= 0; i--) {
+        const index = toSplice[i];
+        changes.splice(index, 1);
+      }
       if (changes.length) {
         beforeChangeResult = instance.runHooks('beforeChange', changes, source || 'edit');
         if (isFunction(beforeChangeResult)) {
