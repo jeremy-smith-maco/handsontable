@@ -3341,19 +3341,17 @@ describe('ContextMenu', () => {
 
       const cmInstance = getPlugin('contextMenu').menu.hotMenu;
 
-      expect(1).toEqual(1);
-
       cmInstance.selectCell(3, 0);
 
-      expect(window.scrollX).toEqual(beginningScrollX);
+      expect(window.scrollX).toBe(beginningScrollX);
 
       cmInstance.selectCell(4, 0);
 
-      expect(window.scrollX).toEqual(beginningScrollX);
+      expect(window.scrollX).toBe(beginningScrollX);
 
       cmInstance.selectCell(6, 0);
 
-      expect(window.scrollX).toEqual(beginningScrollX);
+      expect(window.scrollX).toBe(beginningScrollX);
     });
   });
 
@@ -3377,6 +3375,8 @@ describe('ContextMenu', () => {
 
       contextMenu();
 
+      await sleep(200);
+
       const $menu = $('.htContextMenu .ht_master .htCore');
 
       expect($menu.find('tbody td').text()).toContain('My custom item');
@@ -3389,24 +3389,24 @@ describe('ContextMenu', () => {
   });
 
   describe('beforeContextMenuSetItems hook', () => {
-    it('should add new menu item even when item is excluded from plugin settings', () => {
-      let hot;
+    it('should add new menu item even when item is excluded from plugin settings', async() => {
+      const hookListener = function(options) {
+        options.push({
+          key: 'test',
+          name: 'Test'
+        });
+      };
 
-      Handsontable.hooks.add('beforeContextMenuSetItems', function(options) {
-        if (this === hot || !hot) {
-          options.push({
-            key: 'test',
-            name: 'Test'
-          });
-        }
-      });
+      Handsontable.hooks.add('beforeContextMenuSetItems', hookListener);
 
-      hot = handsontable({
+      handsontable({
         contextMenu: ['make_read_only'],
         height: 100
       });
 
       contextMenu();
+
+      await sleep(200);
 
       const items = $('.htContextMenu tbody td');
       const actions = items.not('.htSeparator');
@@ -3415,26 +3415,30 @@ describe('ContextMenu', () => {
         'Read only',
         'Test',
       ].join(''));
+
+      Handsontable.hooks.remove('beforeContextMenuSetItems', hookListener);
     });
 
-    it('should be called only with items selected in plugin settings', () => {
+    it('should be called only with items selected in plugin settings', async() => {
       let keys = [];
-      let hot;
+      const hookListener = function(items) {
+        keys = items.map(v => v.key);
+      };
 
-      Handsontable.hooks.add('beforeContextMenuSetItems', function(items) {
-        if (this === hot || !hot) {
-          keys = items.map(v => v.key);
-        }
-      });
+      Handsontable.hooks.add('beforeContextMenuSetItems', hookListener);
 
-      hot = handsontable({
+      handsontable({
         contextMenu: ['make_read_only', 'col_left'],
         height: 100
       });
 
       contextMenu();
 
+      await sleep(200);
+
       expect(keys).toEqual(['make_read_only', 'col_left']);
+
+      Handsontable.hooks.remove('beforeContextMenuSetItems', hookListener);
     });
   });
 });
