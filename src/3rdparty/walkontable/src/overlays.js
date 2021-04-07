@@ -250,7 +250,8 @@ class Overlays {
           (overlay === 'bottom' && deltaY !== 0) ||
           ((overlay === 'topLeft' || overlay === 'bottomLeft') && (deltaY !== 0 || deltaX !== 0))) {
 
-          event.preventDefault();
+          // Cannot prevent default in passive event listener
+          // event.preventDefault();
         }
       }]);
     }
