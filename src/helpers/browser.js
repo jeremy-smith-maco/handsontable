@@ -19,6 +19,7 @@ const browsers = {
   ie9: tester(() => !!(document.documentMode)),
   mobile: tester(ua => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)),
   safari: tester((ua, vendor) => /Safari/.test(ua) && /Apple Computer/.test(vendor)),
+  macOS: tester(ua => /Macintosh/.test(ua)),
 };
 
 export function setBrowserMeta({ userAgent = navigator.userAgent, vendor = navigator.vendor } = {}) {
@@ -57,4 +58,8 @@ export function isMobileBrowser() {
 
 export function isSafari() {
   return browsers.safari.value;
+}
+
+export function isMacOS() {
+  return browsers.macOS.value;
 }

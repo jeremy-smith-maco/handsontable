@@ -4,7 +4,7 @@ import {
 } from './../../../helpers/dom/element';
 import { arrayEach } from './../../../helpers/array';
 import { isKey } from './../../../helpers/unicode';
-import { isChrome } from './../../../helpers/browser';
+import { isChrome, isMacOS } from './../../../helpers/browser';
 import EventManager from './../../../eventManager';
 import Overlay from './overlay/_base';
 
@@ -355,6 +355,11 @@ class Overlays {
     if (event.deltaMode === 1) {
       deltaX += deltaX * this.browserLineHeight;
       deltaY += deltaY * this.browserLineHeight;
+    }
+
+    if (event.shiftKey && !isMacOS() && deltaX === 0 && deltaY !== 0) {
+      deltaX = deltaY;
+      deltaY = 0;
     }
 
     this.scrollVertically(deltaY);

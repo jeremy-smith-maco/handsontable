@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.2.2
- * Release date: 19/12/2018 (built at 16/10/2024 14:34:26)
+ * Release date: 19/12/2018 (built at 26/10/2026 09:26:02)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -6751,6 +6751,7 @@ exports.isIE9 = isIE9;
 exports.isMSBrowser = isMSBrowser;
 exports.isMobileBrowser = isMobileBrowser;
 exports.isSafari = isSafari;
+exports.isMacOS = isMacOS;
 
 var _object = __webpack_require__(2);
 
@@ -6787,6 +6788,9 @@ var browsers = {
   }),
   safari: tester(function (ua, vendor) {
     return /Safari/.test(ua) && /Apple Computer/.test(vendor);
+  }),
+  macOS: tester(function (ua) {
+    return /Macintosh/.test(ua);
   })
 };
 
@@ -6835,6 +6839,10 @@ function isMobileBrowser() {
 
 function isSafari() {
   return browsers.safari.value;
+}
+
+function isMacOS() {
+  return browsers.macOS.value;
 }
 
 /***/ }),
@@ -27029,6 +27037,11 @@ function () {
         deltaY += deltaY * this.browserLineHeight;
       }
 
+      if (event.shiftKey && !(0, _browser.isMacOS)() && deltaX === 0 && deltaY !== 0) {
+        deltaX = deltaY;
+        deltaY = 0;
+      }
+
       this.scrollVertically(deltaY);
       this.scrollHorizontally(deltaX);
       return false;
@@ -36256,7 +36269,7 @@ Handsontable.DefaultSettings = _defaultSettings.default;
 Handsontable.EventManager = _eventManager.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = "16/10/2024 14:34:26";
+Handsontable.buildDate = "26/10/2026 09:26:02";
 Handsontable.packageName = "handsontable";
 Handsontable.version = "6.2.2";
 var baseVersion = "";
