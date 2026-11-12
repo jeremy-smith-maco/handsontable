@@ -194,6 +194,18 @@ class Overlays {
       listenersToRegister.push([leftOverlayScrollable, 'scroll', event => this.onTableScroll(event)]);
     }
 
+    if (this.bottomOverlay.clone) {
+      const bottomHolder = this.bottomOverlay.clone.wtTable.holder;
+
+      listenersToRegister.push([bottomHolder, 'mousedown', (event) => {
+        this.bottomScrollbarPressed = (event.target === bottomHolder);
+      }]);
+      listenersToRegister.push([document.documentElement, 'mouseup', () => {
+        this.bottomScrollbarPressed = false;
+      }]);
+      listenersToRegister.push([bottomHolder, 'scroll', () => this.onBottomCloneScroll()]);
+    }
+
     const isHighPixelRatio = window.devicePixelRatio && window.devicePixelRatio > 1;
 
     if (isHighPixelRatio || !isChrome()) {
@@ -380,6 +392,14 @@ class Overlays {
       return 0;
     }
     this.scrollableElement.scrollLeft += distance;
+  }
+
+  onBottomCloneScroll() {
+    const { scrollLeft } = this.bottomOverlay.clone.wtTable.holder;
+
+    if (this.bottomScrollbarPressed && (this.scrollableElement.scrollLeft !== scrollLeft)) {
+      this.scrollableElement.scrollLeft = scrollLeft;
+    }
   }
 
   /**

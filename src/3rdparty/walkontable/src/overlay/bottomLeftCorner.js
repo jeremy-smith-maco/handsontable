@@ -1,4 +1,5 @@
 import {
+  getScrollbarWidth,
   outerHeight,
   outerWidth,
   resetCssTransform
@@ -32,10 +33,15 @@ class BottomLeftCornerOverlay extends Overlay {
    * Reposition the overlay.
    */
   repositionOverlay() {
+    let scrollbarWidth = getScrollbarWidth();
     const cloneRoot = this.clone.wtTable.holder.parentNode;
 
+    if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
+      scrollbarWidth = 0;
+    }
+
     cloneRoot.style.top = '';
-    cloneRoot.style.bottom = `${this.getBottomScrollbarHeight()}px`;
+    cloneRoot.style.bottom = `${scrollbarWidth}px`;
   }
 
   /**

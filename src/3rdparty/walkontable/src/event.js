@@ -221,10 +221,19 @@ class Event {
     const scrollbar = this.getOverlayScrollbarUnderCursor(event);
 
     if (scrollbar && scrollbar !== mainWOT.lastOverlayScrollbar) {
-      this.revealOverlayScrollbar(mainWOT.wtTable.holder, scrollbar);
+      const holder = (scrollbar === 'horizontal') ? this.getHorizontalScrollbarHolder(mainWOT) : mainWOT.wtTable.holder;
+
+      this.revealOverlayScrollbar(holder, scrollbar);
     }
 
     mainWOT.lastOverlayScrollbar = scrollbar;
+  }
+
+  getHorizontalScrollbarHolder(mainWOT) {
+    const { bottomOverlay } = mainWOT.wtOverlays;
+    const cloneHolder = bottomOverlay && bottomOverlay.clone && bottomOverlay.clone.wtTable.holder;
+
+    return (cloneHolder && (cloneHolder.style.overflowX === 'scroll')) ? cloneHolder : mainWOT.wtTable.holder;
   }
 
   revealOverlayScrollbar(holder, scrollbar) {

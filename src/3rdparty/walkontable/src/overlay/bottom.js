@@ -26,10 +26,33 @@ class BottomOverlay extends Overlay {
    *
    */
   repositionOverlay() {
+    let scrollbarWidth = getScrollbarWidth();
     const cloneRoot = this.clone.wtTable.holder.parentNode;
 
+    if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
+      scrollbarWidth = 0;
+    }
+
     cloneRoot.style.top = '';
-    cloneRoot.style.bottom = `${this.getBottomScrollbarHeight()}px`;
+    cloneRoot.style.bottom = `${scrollbarWidth}px`;
+
+    this.updateOverlayScrollbar();
+  }
+
+  updateOverlayScrollbar() {
+    const masterHolder = this.wot.wtTable.holder;
+    const cloneHolder = this.clone.wtTable.holder;
+    const showScrollbar = (masterHolder.clientHeight === masterHolder.offsetHeight) &&
+      (masterHolder.scrollWidth > masterHolder.clientWidth);
+
+    if (showScrollbar) {
+      cloneHolder.style.overflowX = 'scroll';
+      cloneHolder.style.height = cloneHolder.parentNode.style.height;
+
+    } else if (cloneHolder.style.overflowX) {
+      cloneHolder.style.overflowX = '';
+      this.adjustRootChildrenSize();
+    }
   }
 
   /**

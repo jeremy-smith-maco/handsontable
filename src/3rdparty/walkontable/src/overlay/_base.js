@@ -1,7 +1,5 @@
 import {
-  OVERLAY_SCROLLBAR_SIZE,
   getScrollableElement,
-  getScrollbarWidth,
   getTrimmingContainer,
 } from './../../../../helpers/dom/element';
 import { defineGetter } from './../../../../helpers/object';
@@ -173,16 +171,6 @@ class Overlay {
    */
   shouldBeRendered() {
     return true;
-  }
-
-  getBottomScrollbarHeight() {
-    const { holder } = this.wot.wtTable;
-
-    if (holder.clientHeight !== holder.offsetHeight) {
-      return getScrollbarWidth();
-    }
-
-    return (holder.scrollWidth > holder.clientWidth) ? OVERLAY_SCROLLBAR_SIZE : 0;
   }
 
   /**

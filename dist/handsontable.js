@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.2.2
- * Release date: 19/12/2018 (built at 12/11/2026 11:22:06)
+ * Release date: 19/12/2018 (built at 12/11/2026 11:30:57)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -7064,17 +7064,6 @@ function () {
     key: "shouldBeRendered",
     value: function shouldBeRendered() {
       return true;
-    }
-  }, {
-    key: "getBottomScrollbarHeight",
-    value: function getBottomScrollbarHeight() {
-      var holder = this.wot.wtTable.holder;
-
-      if (holder.clientHeight !== holder.offsetHeight) {
-        return (0, _element.getScrollbarWidth)();
-      }
-
-      return holder.scrollWidth > holder.clientWidth ? _element.OVERLAY_SCROLLBAR_SIZE : 0;
     }
     /**
      * Update the trimming container.
@@ -20019,10 +20008,18 @@ function () {
       var scrollbar = this.getOverlayScrollbarUnderCursor(event);
 
       if (scrollbar && scrollbar !== mainWOT.lastOverlayScrollbar) {
-        this.revealOverlayScrollbar(mainWOT.wtTable.holder, scrollbar);
+        var holder = scrollbar === 'horizontal' ? this.getHorizontalScrollbarHolder(mainWOT) : mainWOT.wtTable.holder;
+        this.revealOverlayScrollbar(holder, scrollbar);
       }
 
       mainWOT.lastOverlayScrollbar = scrollbar;
+    }
+  }, {
+    key: "getHorizontalScrollbarHolder",
+    value: function getHorizontalScrollbarHolder(mainWOT) {
+      var bottomOverlay = mainWOT.wtOverlays.bottomOverlay;
+      var cloneHolder = bottomOverlay && bottomOverlay.clone && bottomOverlay.clone.wtTable.holder;
+      return cloneHolder && cloneHolder.style.overflowX === 'scroll' ? cloneHolder : mainWOT.wtTable.holder;
     }
   }, {
     key: "revealOverlayScrollbar",
@@ -20424,6 +20421,19 @@ function () {
         }]);
       }
 
+      if (this.bottomOverlay.clone) {
+        var bottomHolder = this.bottomOverlay.clone.wtTable.holder;
+        listenersToRegister.push([bottomHolder, 'mousedown', function (event) {
+          _this.bottomScrollbarPressed = event.target === bottomHolder;
+        }]);
+        listenersToRegister.push([document.documentElement, 'mouseup', function () {
+          _this.bottomScrollbarPressed = false;
+        }]);
+        listenersToRegister.push([bottomHolder, 'scroll', function () {
+          return _this.onBottomCloneScroll();
+        }]);
+      }
+
       var isHighPixelRatio = window.devicePixelRatio && window.devicePixelRatio > 1;
 
       if (isHighPixelRatio || !(0, _browser.isChrome)()) {
@@ -20622,6 +20632,15 @@ function () {
       }
 
       this.scrollableElement.scrollLeft += distance;
+    }
+  }, {
+    key: "onBottomCloneScroll",
+    value: function onBottomCloneScroll() {
+      var scrollLeft = this.bottomOverlay.clone.wtTable.holder.scrollLeft;
+
+      if (this.bottomScrollbarPressed && this.scrollableElement.scrollLeft !== scrollLeft) {
+        this.scrollableElement.scrollLeft = scrollLeft;
+      }
     }
     /**
      * Synchronize scroll position between master table and overlay table.
@@ -29817,7 +29836,7 @@ Handsontable.DefaultSettings = _defaultSettings.default;
 Handsontable.EventManager = _eventManager.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = "12/11/2026 11:22:06";
+Handsontable.buildDate = "12/11/2026 11:30:57";
 Handsontable.packageName = "handsontable";
 Handsontable.version = "6.2.2";
 var baseVersion = "";
@@ -35441,9 +35460,31 @@ function (_Overlay) {
   _createClass(BottomOverlay, [{
     key: "repositionOverlay",
     value: function repositionOverlay() {
+      var scrollbarWidth = (0, _element.getScrollbarWidth)();
       var cloneRoot = this.clone.wtTable.holder.parentNode;
+
+      if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
+        scrollbarWidth = 0;
+      }
+
       cloneRoot.style.top = '';
-      cloneRoot.style.bottom = "".concat(this.getBottomScrollbarHeight(), "px");
+      cloneRoot.style.bottom = "".concat(scrollbarWidth, "px");
+      this.updateOverlayScrollbar();
+    }
+  }, {
+    key: "updateOverlayScrollbar",
+    value: function updateOverlayScrollbar() {
+      var masterHolder = this.wot.wtTable.holder;
+      var cloneHolder = this.clone.wtTable.holder;
+      var showScrollbar = masterHolder.clientHeight === masterHolder.offsetHeight && masterHolder.scrollWidth > masterHolder.clientWidth;
+
+      if (showScrollbar) {
+        cloneHolder.style.overflowX = 'scroll';
+        cloneHolder.style.height = cloneHolder.parentNode.style.height;
+      } else if (cloneHolder.style.overflowX) {
+        cloneHolder.style.overflowX = '';
+        this.adjustRootChildrenSize();
+      }
     }
     /**
      * Checks if overlay should be fully rendered
@@ -35823,9 +35864,15 @@ function (_Overlay) {
   }, {
     key: "repositionOverlay",
     value: function repositionOverlay() {
+      var scrollbarWidth = (0, _element.getScrollbarWidth)();
       var cloneRoot = this.clone.wtTable.holder.parentNode;
+
+      if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
+        scrollbarWidth = 0;
+      }
+
       cloneRoot.style.top = '';
-      cloneRoot.style.bottom = "".concat(this.getBottomScrollbarHeight(), "px");
+      cloneRoot.style.bottom = "".concat(scrollbarWidth, "px");
     }
     /**
      * Updates the corner overlay position
