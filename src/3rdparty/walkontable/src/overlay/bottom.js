@@ -26,15 +26,10 @@ class BottomOverlay extends Overlay {
    *
    */
   repositionOverlay() {
-    let scrollbarWidth = getScrollbarWidth();
     const cloneRoot = this.clone.wtTable.holder.parentNode;
 
-    if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
-      scrollbarWidth = 0;
-    }
-
     cloneRoot.style.top = '';
-    cloneRoot.style.bottom = `${scrollbarWidth}px`;
+    cloneRoot.style.bottom = `${this.getBottomScrollbarHeight()}px`;
   }
 
   /**

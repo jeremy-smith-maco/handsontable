@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.2.2
- * Release date: 19/12/2018 (built at 26/10/2026 09:26:02)
+ * Release date: 19/12/2018 (built at 12/11/2026 11:04:30)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -6874,6 +6874,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var registeredOverlays = {};
+var OVERLAY_SCROLLBAR_HEIGHT = 12;
 /**
  * Creates an overlay over the original Walkontable instance. The overlay renders the clone of the original Walkontable
  * and (optionally) implements behavior needed for native horizontal and vertical scrolling.
@@ -7061,6 +7062,17 @@ function () {
     key: "shouldBeRendered",
     value: function shouldBeRendered() {
       return true;
+    }
+  }, {
+    key: "getBottomScrollbarHeight",
+    value: function getBottomScrollbarHeight() {
+      var holder = this.wot.wtTable.holder;
+
+      if (holder.clientHeight !== holder.offsetHeight) {
+        return (0, _element.getScrollbarWidth)();
+      }
+
+      return holder.scrollWidth > holder.clientWidth ? OVERLAY_SCROLLBAR_HEIGHT : 0;
     }
     /**
      * Update the trimming container.
@@ -36269,7 +36281,7 @@ Handsontable.DefaultSettings = _defaultSettings.default;
 Handsontable.EventManager = _eventManager.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = "26/10/2026 09:26:02";
+Handsontable.buildDate = "12/11/2026 11:04:30";
 Handsontable.packageName = "handsontable";
 Handsontable.version = "6.2.2";
 var baseVersion = "";
@@ -42213,15 +42225,9 @@ function (_Overlay) {
   _createClass(BottomOverlay, [{
     key: "repositionOverlay",
     value: function repositionOverlay() {
-      var scrollbarWidth = (0, _element.getScrollbarWidth)();
       var cloneRoot = this.clone.wtTable.holder.parentNode;
-
-      if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
-        scrollbarWidth = 0;
-      }
-
       cloneRoot.style.top = '';
-      cloneRoot.style.bottom = "".concat(scrollbarWidth, "px");
+      cloneRoot.style.bottom = "".concat(this.getBottomScrollbarHeight(), "px");
     }
     /**
      * Checks if overlay should be fully rendered
@@ -42601,15 +42607,9 @@ function (_Overlay) {
   }, {
     key: "repositionOverlay",
     value: function repositionOverlay() {
-      var scrollbarWidth = (0, _element.getScrollbarWidth)();
       var cloneRoot = this.clone.wtTable.holder.parentNode;
-
-      if (this.wot.wtTable.holder.clientHeight === this.wot.wtTable.holder.offsetHeight) {
-        scrollbarWidth = 0;
-      }
-
       cloneRoot.style.top = '';
-      cloneRoot.style.bottom = "".concat(scrollbarWidth, "px");
+      cloneRoot.style.bottom = "".concat(this.getBottomScrollbarHeight(), "px");
     }
     /**
      * Updates the corner overlay position
