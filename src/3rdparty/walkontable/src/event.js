@@ -1,4 +1,5 @@
 import {
+  OVERLAY_SCROLLBAR_SIZE,
   closestDown,
   hasClass,
   isChildOf,
@@ -81,6 +82,7 @@ class Event {
     const initMouseEvents = () => {
       this.eventManager.addEventListener(this.instance.wtTable.holder, 'mouseup', event => this.onMouseUp(event));
       this.eventManager.addEventListener(this.instance.wtTable.holder, 'mousedown', event => this.onMouseDown(event));
+      this.eventManager.addEventListener(this.instance.wtTable.holder, 'mousemove', event => this.onMouseMove(event));
     };
 
     if (isMobileBrowser()) {
@@ -172,6 +174,10 @@ class Event {
       return;
     }
 
+    if (this.getOverlayScrollbarUnderCursor(event)) {
+      return;
+    }
+
     const cell = this.parentCell(realTarget);
 
     if (hasClass(realTarget, 'corner')) {
@@ -189,6 +195,44 @@ class Event {
         priv.dblClickOrigin[0] = null;
       }, 1000);
     }
+  }
+
+  getOverlayScrollbarUnderCursor(event) {
+    const { holder } = (this.instance.cloneSource || this.instance).wtTable;
+    const rect = holder.getBoundingClientRect();
+
+    if ((holder.clientHeight === holder.offsetHeight) &&
+        (holder.scrollWidth > holder.clientWidth) &&
+        (event.clientY >= rect.bottom - OVERLAY_SCROLLBAR_SIZE)) {
+      return 'horizontal';
+    }
+
+    if ((holder.clientWidth === holder.offsetWidth) &&
+        (holder.scrollHeight > holder.clientHeight) &&
+        (event.clientX >= rect.right - OVERLAY_SCROLLBAR_SIZE)) {
+      return 'vertical';
+    }
+
+    return null;
+  }
+
+  onMouseMove(event) {
+    const mainWOT = this.instance.cloneSource || this.instance;
+    const scrollbar = this.getOverlayScrollbarUnderCursor(event);
+
+    if (scrollbar && scrollbar !== mainWOT.lastOverlayScrollbar) {
+      this.revealOverlayScrollbar(mainWOT.wtTable.holder, scrollbar);
+    }
+
+    mainWOT.lastOverlayScrollbar = scrollbar;
+  }
+
+  revealOverlayScrollbar(holder, scrollbar) {
+    const property = (scrollbar === 'horizontal') ? 'scrollLeft' : 'scrollTop';
+    const position = holder[property];
+
+    holder[property] = position + ((position > 0) ? -1 : 1);
+    holder[property] = position;
   }
 
   /**

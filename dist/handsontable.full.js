@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Version: 6.2.2
- * Release date: 19/12/2018 (built at 12/11/2026 11:04:30)
+ * Release date: 19/12/2018 (built at 12/11/2026 11:22:06)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -202,7 +202,7 @@ exports.getCssTransform = getCssTransform;
 exports.resetCssTransform = resetCssTransform;
 exports.isInput = isInput;
 exports.isOutsideInput = isOutsideInput;
-exports.HTML_CHARACTERS = void 0;
+exports.OVERLAY_SCROLLBAR_SIZE = exports.HTML_CHARACTERS = void 0;
 
 var _browser = __webpack_require__(42);
 
@@ -1180,12 +1180,15 @@ function walkontableCalculateScrollbarWidth() {
   (document.body || document.documentElement).removeChild(outer);
   return w1 - w2;
 }
+
+var OVERLAY_SCROLLBAR_SIZE = 12;
 /**
  * Returns the computed width of the native browser scroll bar.
  *
  * @return {Number} width
  */
 
+exports.OVERLAY_SCROLLBAR_SIZE = OVERLAY_SCROLLBAR_SIZE;
 
 function getScrollbarWidth() {
   if (cachedScrollbarWidth === void 0) {
@@ -6874,7 +6877,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var registeredOverlays = {};
-var OVERLAY_SCROLLBAR_HEIGHT = 12;
 /**
  * Creates an overlay over the original Walkontable instance. The overlay renders the clone of the original Walkontable
  * and (optionally) implements behavior needed for native horizontal and vertical scrolling.
@@ -7072,7 +7074,7 @@ function () {
         return (0, _element.getScrollbarWidth)();
       }
 
-      return holder.scrollWidth > holder.clientWidth ? OVERLAY_SCROLLBAR_HEIGHT : 0;
+      return holder.scrollWidth > holder.clientWidth ? _element.OVERLAY_SCROLLBAR_SIZE : 0;
     }
     /**
      * Update the trimming container.
@@ -26373,6 +26375,10 @@ function () {
         _this.eventManager.addEventListener(_this.instance.wtTable.holder, 'mousedown', function (event) {
           return _this.onMouseDown(event);
         });
+
+        _this.eventManager.addEventListener(_this.instance.wtTable.holder, 'mousemove', function (event) {
+          return _this.onMouseMove(event);
+        });
       };
 
       if ((0, _browser.isMobileBrowser)()) {
@@ -26468,6 +26474,10 @@ function () {
         return;
       }
 
+      if (this.getOverlayScrollbarUnderCursor(event)) {
+        return;
+      }
+
       var cell = this.parentCell(realTarget);
 
       if ((0, _element.hasClass)(realTarget, 'corner')) {
@@ -26484,6 +26494,42 @@ function () {
           priv.dblClickOrigin[0] = null;
         }, 1000);
       }
+    }
+  }, {
+    key: "getOverlayScrollbarUnderCursor",
+    value: function getOverlayScrollbarUnderCursor(event) {
+      var holder = (this.instance.cloneSource || this.instance).wtTable.holder;
+      var rect = holder.getBoundingClientRect();
+
+      if (holder.clientHeight === holder.offsetHeight && holder.scrollWidth > holder.clientWidth && event.clientY >= rect.bottom - _element.OVERLAY_SCROLLBAR_SIZE) {
+        return 'horizontal';
+      }
+
+      if (holder.clientWidth === holder.offsetWidth && holder.scrollHeight > holder.clientHeight && event.clientX >= rect.right - _element.OVERLAY_SCROLLBAR_SIZE) {
+        return 'vertical';
+      }
+
+      return null;
+    }
+  }, {
+    key: "onMouseMove",
+    value: function onMouseMove(event) {
+      var mainWOT = this.instance.cloneSource || this.instance;
+      var scrollbar = this.getOverlayScrollbarUnderCursor(event);
+
+      if (scrollbar && scrollbar !== mainWOT.lastOverlayScrollbar) {
+        this.revealOverlayScrollbar(mainWOT.wtTable.holder, scrollbar);
+      }
+
+      mainWOT.lastOverlayScrollbar = scrollbar;
+    }
+  }, {
+    key: "revealOverlayScrollbar",
+    value: function revealOverlayScrollbar(holder, scrollbar) {
+      var property = scrollbar === 'horizontal' ? 'scrollLeft' : 'scrollTop';
+      var position = holder[property];
+      holder[property] = position + (position > 0 ? -1 : 1);
+      holder[property] = position;
     }
     /**
      * onContextMenu callback.
@@ -36281,7 +36327,7 @@ Handsontable.DefaultSettings = _defaultSettings.default;
 Handsontable.EventManager = _eventManager.default;
 Handsontable._getListenersCounter = _eventManager.getListenersCounter; // For MemoryLeak tests
 
-Handsontable.buildDate = "12/11/2026 11:04:30";
+Handsontable.buildDate = "12/11/2026 11:22:06";
 Handsontable.packageName = "handsontable";
 Handsontable.version = "6.2.2";
 var baseVersion = "";

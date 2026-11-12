@@ -925,6 +925,8 @@ function walkontableCalculateScrollbarWidth() {
   return (w1 - w2);
 }
 
+export const OVERLAY_SCROLLBAR_SIZE = 12;
+
 /**
  * Returns the computed width of the native browser scroll bar.
  *

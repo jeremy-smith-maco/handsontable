@@ -1,4 +1,5 @@
 import {
+  OVERLAY_SCROLLBAR_SIZE,
   getScrollableElement,
   getScrollbarWidth,
   getTrimmingContainer,
@@ -9,7 +10,6 @@ import EventManager from './../../../../eventManager';
 import Walkontable from './../core';
 
 const registeredOverlays = {};
-const OVERLAY_SCROLLBAR_HEIGHT = 12;
 
 /**
  * Creates an overlay over the original Walkontable instance. The overlay renders the clone of the original Walkontable
@@ -182,7 +182,7 @@ class Overlay {
       return getScrollbarWidth();
     }
 
-    return (holder.scrollWidth > holder.clientWidth) ? OVERLAY_SCROLLBAR_HEIGHT : 0;
+    return (holder.scrollWidth > holder.clientWidth) ? OVERLAY_SCROLLBAR_SIZE : 0;
   }
 
   /**
